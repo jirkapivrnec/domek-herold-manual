@@ -30,7 +30,7 @@ export const TOOLS: Tool[] = [
   { id: 'palicka', name: 'Gumová palička' },
   { id: 'nuz', name: 'Nůž' },
   { id: 'kleste', name: 'Kleště' },
-  { id: 'rukavice', name: 'Ochranné rukavice', note: 'doporučení – proti zadření třísky' },
+  { id: 'rukavice', name: 'Ochranné rukavice', note: 'doporučení návodu – aby se nezadřela tříska' },
 ]
 
 export const TOOL_BY_ID = new Map(TOOLS.map((t) => [t.id, t]))

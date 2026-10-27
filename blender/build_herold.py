@@ -306,7 +306,7 @@ def rear_frame():
     Mesh().box(20, 3250, D - 110, D - 20, PAD, ZB).finish(
         "P07_spodni_zadni", "wood", 7, "s1a", g, frm=(0, 0, 500), label="Hranol č.7 – spodní")
     top = [(x, D + 22.5, REAR_TOP - 45 + dz) for x in AX for dz in (-25, 25)]   # 20 mm od hran
-    top += [(x, D + 22.5, REAR_TOP - 45) for x in (-22.5, 3292.5)]          # detail G – spoj s bokem
+    top += [(x, D + 22.5, REAR_TOP - 45 + dz) for x in (-22.5, 3292.5) for dz in (-25, 25)]  # detail G – 2× č.32
     holes("H_otvory_zadni_5", "s1a", g, top, "y", 45)
     bot = [(x, D - 65, PAD + 22.5) for x in AX]
     holes("H_otvory_zadni_7", "s1a", g, bot, "z", 45)
@@ -326,7 +326,7 @@ def front_frame():
     Mesh().box(20, 3250, 20, 110, PAD, ZB).finish(
         "P07_spodni_celni", "wood", 7, "s2a", g, frm=(0, 0, 500), label="Hranol č.7 – spodní")
     top = [(x, -22.5, z + dz) for x in AX for z in (FRONT_BEAM_TOP - 45, FRONT_TOP - 705) for dz in (-25, 25)]
-    top += [(x, -22.5, FRONT_TOP - 705) for x in (-22.5, 3292.5)]           # detail H – spoj s bokem
+    top += [(x, -22.5, FRONT_TOP - 705 + dz) for x in (-22.5, 3292.5) for dz in (-25, 25)]  # detail H – 2× č.32
     holes("H_otvory_celni_5", "s2a", g, top, "y", 45)
     holes("H_otvory_celni_7", "s2a", g, [(x, 65, PAD + 22.5) for x in AX], "z", 45)
     post("P03_noha1_celni_L", 3, "s2b", g, 0, 0, FRONT_TOP, {"xp", "yp"}, "Hranol č.3 – noha1 (2650)")

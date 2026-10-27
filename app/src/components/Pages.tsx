@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { PARTS, SPECS } from '../data/parts'
 import { TOOLS } from '../data/tools'
 import { STEPS } from '../data/steps'
@@ -5,10 +6,34 @@ import { Hex, PartIcon, ToolIcon } from './Icons'
 
 const BASE = import.meta.env.BASE_URL
 
+const CHECK_KEY = 'herold-dily-zkontrolovano'
+
 function usedIn(no: number) {
-  return STEPS.filter((s) => s.parts.some((p) => p.no === no)).map((s) =>
-    s.manual === 'P' || s.manual === '✓' ? s.manual : `${s.manual}${s.sub ?? ''}`,
-  )
+  return STEPS.flatMap((s, i) => (s.parts.some((p) => p.no === no) ? [{ i, label: `${s.manual}${s.sub ?? ''}` }] : []))
+}
+
+// odškrtnuté díly si pamatuje jen tento prohlížeč
+function useChecked() {
+  const [checked, setChecked] = useState<Set<number>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(CHECK_KEY) ?? '[]'))
+    } catch {
+      return new Set()
+    }
+  })
+  const toggle = (no: number) =>
+    setChecked((cur) => {
+      const next = new Set(cur)
+      if (next.has(no)) next.delete(no)
+      else next.add(no)
+      try {
+        localStorage.setItem(CHECK_KEY, JSON.stringify([...next]))
+      } catch {
+        /* úložiště nemusí být dostupné */
+      }
+      return next
+    })
+  return [checked, toggle] as const
 }
 
 export function ToolsPage({ onStart }: { onStart: () => void }) {
@@ -55,14 +80,22 @@ const GROUPS: [string, number, number][] = [
   ['Spojovací materiál a ostatní', 31, 43],
 ]
 
-export function PartsPage({ onStart }: { onStart: () => void }) {
+export function PartsPage({ onStart, onStep }: { onStart: () => void; onStep: (i: number) => void }) {
+  const [checked, toggle] = useChecked()
   return (
     <div className="page">
       <div className="page-head">
         <h1>Díly</h1>
         <p>
-          Seznam dodaného materiálu (str. 3–6). Před montáží zkontrolujte počty kusů. Pakety bloků rozeberte až těsně před
-          montáží. Sloupec „Krok“ ukazuje, kde se díl používá.
+          Seznam dodaného materiálu (str. 3–6). Před montáží zkontrolujte počty kusů a zkontrolované díly si odškrtněte.
+          Pakety bloků rozeberte až těsně před montáží. Tlačítka s čísly kroků u každého dílu otevřou krok, kde se díl používá.
+        </p>
+        <div className="buy-note">
+          <b>Dokupte:</b> střešní krytina není součástí dodávky (str. 1). Návod doporučuje lišty střechy montovat až po
+          krytině (krok 9).
+        </div>
+        <p className="check-count">
+          Zkontrolováno {checked.size} z {PARTS.length} položek
         </p>
       </div>
       {GROUPS.map(([title, a, b]) => (
@@ -70,14 +103,24 @@ export function PartsPage({ onStart }: { onStart: () => void }) {
           <h2>{title}</h2>
           <div className="parts-table">
             {PARTS.filter((p) => p.no >= a && p.no <= b).map((p) => (
-              <div className="part-row" key={p.no}>
+              <div className={checked.has(p.no) ? 'part-row checked' : 'part-row'} key={p.no}>
+                <label className="part-check">
+                  <input type="checkbox" checked={checked.has(p.no)} onChange={() => toggle(p.no)} aria-label={`Zkontrolováno: ${p.name}`} />
+                </label>
                 <PartIcon kind={p.kind} size={40} />
                 <Hex n={p.no} />
                 <div className="part-name">
                   {p.name}
+                  {p.note && <em>{p.note}</em>}
                   <small>{p.code}</small>
                 </div>
-                <span className="part-steps">{usedIn(p.no).join(', ')}</span>
+                <span className="part-steps">
+                  {usedIn(p.no).map((u) => (
+                    <button key={u.i} onClick={() => onStep(u.i)} title="Otevřít krok">
+                      {u.label}
+                    </button>
+                  ))}
+                </span>
                 <b>{p.qty}×</b>
               </div>
             ))}

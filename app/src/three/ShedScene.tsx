@@ -23,13 +23,14 @@ const PALETTE = {
     edge: '#1f1b16', edgeOpacity: 0.85,
   },
   drevo: {
-    bg: '#e6ecef', ground: '#a7b78d', wood: '#d2a46a', hi: '#f2b84b', deck: '#56504a', floor: '#9b7552',
+    bg: '#e6ecef', ground: '#a7b78d', wood: '#d2a46a', hi: '#ffd23a', deck: '#56504a', floor: '#9b7552',
     steel: '#9ea4aa', rubber: '#1d1d1d', glass: '#bcdcea', hole: '#151515', logo: '#2f7d4a',
     edge: '#3a2815', edgeOpacity: 0.28,
   },
 } as const
 
 type Kind = 'wood' | 'deck' | 'floor' | 'steel' | 'rubber' | 'glass' | 'hole' | 'logo'
+const HIGHLIGHT = new Set<Kind>(['wood', 'rubber', 'steel', 'logo'])
 
 type Item = {
   mesh: THREE.Mesh
@@ -46,6 +47,12 @@ type Item = {
   delay: number
 }
 
+/** poloha dílu po doběhnutí animace v daném kroku */
+const finalPos = (it: Item, stepIdx: number) => {
+  const pos = it.base.clone()
+  if (it.release >= 0 && stepIdx < it.release) pos.add(it.ex)
+  return pos
+}
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3)
 const easeInOut = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2)
@@ -97,6 +104,7 @@ function useItems() {
 }
 
 type ShedProps = { stepIdx: number; mode: ViewMode; paused: boolean; slow: boolean; replay: number; onReady?: () => void }
+export type SceneProps = ShedProps & { camKey: number }
 
 function Shed({ stepIdx, mode, paused, slow, replay, onReady }: ShedProps) {
   const { scene, items } = useItems()
@@ -110,7 +118,7 @@ function Shed({ stepIdx, mode, paused, slow, replay, onReady }: ShedProps) {
       new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...extra })
     return {
       wood: std(p.wood),
-      hi: std(p.hi, { emissive: new THREE.Color(p.hi), emissiveIntensity: mode === 'navod' ? 0.12 : 0.18 }),
+      hi: std(p.hi, { emissive: new THREE.Color(p.hi), emissiveIntensity: mode === 'navod' ? 0.12 : 0.4 }),
       deck: std(p.deck),
       floor: std(p.floor),
       steel: std(p.steel, { metalness: 0.6, roughness: 0.4 }),
@@ -126,7 +134,7 @@ function Shed({ stepIdx, mode, paused, slow, replay, onReady }: ShedProps) {
   useEffect(() => {
     const last = STEPS.length - 1
     for (const it of items) {
-      const current = it.step === stepIdx && stepIdx !== last && it.kind === 'wood'
+      const current = it.step === stepIdx && stepIdx !== last && HIGHLIGHT.has(it.kind)
       it.mesh.material = current ? mats.hi : mats[it.kind]
       if (it.edges) it.edges.material = current ? mats.edgeHi : mats.edge
     }
@@ -159,14 +167,14 @@ function Shed({ stepIdx, mode, paused, slow, replay, onReady }: ShedProps) {
   const labels = useMemo(() => {
     const seen = new Set<number>()
     const out: { part: number; pos: THREE.Vector3; delay: number; title: string }[] = []
+    const target = toThree(...STEPS[stepIdx].camera.target)
     const reps = items
       .filter((it) => it.step === stepIdx && it.part > 0 && stepIdx !== STEPS.length - 1)
-      .sort((a, b) => a.delay - b.delay)
+      .sort((a, b) => finalPos(a, stepIdx).distanceTo(target) - finalPos(b, stepIdx).distanceTo(target))
     for (const it of reps) {
       if (seen.has(it.part)) continue
       seen.add(it.part)
-      const pos = it.base.clone()
-      if (it.release >= 0 && stepIdx < it.release) pos.add(it.ex)
+      const pos = finalPos(it, stepIdx)
       out.push({ part: it.part, pos, delay: it.delay + DUR, title: it.label })
     }
     return out
@@ -190,7 +198,7 @@ function Shed({ stepIdx, mode, paused, slow, replay, onReady }: ShedProps) {
   )
 }
 
-function CameraRig({ step }: { step: Step }) {
+function CameraRig({ step, reset }: { step: Step; reset: string }) {
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   const controls = useThree((s) => s.controls) as unknown as {
@@ -208,7 +216,7 @@ function CameraRig({ step }: { step: Step }) {
     const k = aspect < 1.25 ? Math.min(2.1, 1.25 / aspect) : 1
     pos.sub(target).multiplyScalar(k).add(target)
     goal.current = { pos, target }
-  }, [step, size.width, size.height])
+  }, [step, size.width, size.height, reset])
 
   useEffect(() => {
     if (!controls) return
@@ -229,7 +237,25 @@ function CameraRig({ step }: { step: Step }) {
   return null
 }
 
-export type SceneProps = ShedProps
+// popisky stran domku na zemi, aby bylo vždy jasné, kde je předek s dveřmi
+const COMPASS: [string, number, number][] = [
+  ['PŘEDEK · DVEŘE', 1635, -2500],
+  ['ZADNÍ STĚNA', 1635, 4500],
+  ['LEVÁ STRANA', -2300, 1105],
+  ['PRAVÁ STRANA', 5570, 1105],
+]
+
+function Compass() {
+  return (
+    <>
+      {COMPASS.map(([text, x, y]) => (
+        <Html key={text} position={toThree(x, y, GROUND_Y * 1000)} center zIndexRange={[10, 0]}>
+          <div className="compass">{text}</div>
+        </Html>
+      ))}
+    </>
+  )
+}
 
 export default function ShedScene(props: SceneProps) {
   const step = STEPS[props.stepIdx]
@@ -257,8 +283,9 @@ export default function ShedScene(props: SceneProps) {
       <Suspense fallback={<Html center className="loading-3d">Načítám 3D model…</Html>}>
         <Shed {...props} />
       </Suspense>
-      <OrbitControls makeDefault enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.02} minDistance={1} maxDistance={30} />
-      <CameraRig step={step} />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.02} minDistance={0.4} maxDistance={40} zoomSpeed={1.4} />
+      <Compass />
+      <CameraRig step={step} reset={`${props.replay}-${props.camKey}`} />
     </Canvas>
   )
 }

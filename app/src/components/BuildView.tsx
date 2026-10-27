@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { STEPS, type Step } from '../data/steps'
 import { PART_BY_NO } from '../data/parts'
 import { TOOL_BY_ID } from '../data/tools'
@@ -9,6 +9,19 @@ const ShedScene = lazy(() => import('../three/ShedScene'))
 const BASE = import.meta.env.BASE_URL
 
 const FLAG_LABEL = { vrtani: 'Vrtání', rezani: 'Řezání', sroubovani: 'Šroubování' } as const
+
+// výřezy detailů z výkresů (tools/manual_images.py); A a B, O a P jsou na jednom výřezu
+const DETAIL_IMG: Record<string, string> = { A: 'AB', B: 'AB', O: 'OP', P: 'OP' }
+
+type Sheet = { src: string; label: string }
+
+function sheetsFor(s: Step): Sheet[] {
+  const details = [...new Set((s.details ?? []).map((d) => DETAIL_IMG[d] ?? d))]
+  return [
+    ...details.map((d) => ({ src: `${BASE}manual/detail-${d}.png`, label: `Detail ${d.split('').join(' a ')}` })),
+    { src: `${BASE}manual/${s.crop}.png`, label: `Strana ${s.page}` },
+  ]
+}
 
 export function stepTag(s: Step) {
   if (s.manual === 'P') return 'Příprava'
@@ -30,17 +43,60 @@ type Props = {
 
 export default function BuildView(p: Props) {
   const step = STEPS[p.stepIdx]
-  const [zoom, setZoom] = useState<string | null>(null)
+  const [zoom, setZoom] = useState<number | null>(null)
+  const [zoomed, setZoomed] = useState(false)
+  const [camKey, setCamKey] = useState(0)
   const [ready, setReady] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const viewerRef = useRef<HTMLElement>(null)
+  const firstStep = useRef(true)
+  const sheets = sheetsFor(step)
   const onReady = useCallback(() => setReady(true), [])
   const last = p.stepIdx === STEPS.length - 1
+
+  // při změně kroku: panel nahoru, na mobilu posunout stránku na 3D, zavřít lightbox
+  useEffect(() => {
+    setZoom(null)
+    panelRef.current?.scrollTo({ top: 0 })
+    if (firstStep.current) {
+      firstStep.current = false
+      return
+    }
+    const v = viewerRef.current
+    if (v && window.matchMedia('(max-width: 860px)').matches && v.getBoundingClientRect().top < 0)
+      window.scrollTo({ top: window.scrollY + v.getBoundingClientRect().top - 8 })
+  }, [p.stepIdx])
+
+  // lightbox: Esc zavře, šipky přepínají obrázky (ne kroky)
+  useEffect(() => {
+    if (zoom === null) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setZoom(null)
+      else if (e.key === 'ArrowRight') setZoom((z) => ((z ?? 0) + 1) % sheets.length)
+      else if (e.key === 'ArrowLeft') setZoom((z) => ((z ?? 0) - 1 + sheets.length) % sheets.length)
+      else if (e.key !== ' ' && e.key !== 'r' && e.key !== 'R') return
+      e.preventDefault()
+      e.stopImmediatePropagation()
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [zoom, sheets.length])
+
   const chips = step.parts.filter((x) => typeof x.qty === 'number' && (PART_BY_NO.get(x.no)?.kind ?? 'vrut') !== 'vrut').slice(0, 4)
 
   return (
     <div className="build">
-      <section className="viewer">
+      <section className="viewer" ref={viewerRef}>
         <Suspense fallback={<div className="loading">Načítám 3D model…</div>}>
-          <ShedScene stepIdx={p.stepIdx} mode={p.mode} paused={p.paused} slow={p.slow} replay={p.replay} onReady={onReady} />
+          <ShedScene
+            stepIdx={p.stepIdx}
+            mode={p.mode}
+            paused={p.paused}
+            slow={p.slow}
+            replay={p.replay}
+            camKey={camKey}
+            onReady={onReady}
+          />
         </Suspense>
         {!ready && <div className="loading loading-over">Načítám 3D model…</div>}
 
@@ -79,6 +135,9 @@ export default function BuildView(p: Props) {
           <button className={p.slow ? 'pill on' : 'pill'} onClick={() => p.setSlow(!p.slow)}>
             Pomalu
           </button>
+          <button className="pill" onClick={() => setCamKey((k) => k + 1)} title="Vrátit kameru do výchozího pohledu kroku">
+            Výchozí pohled
+          </button>
           <span className="hint">Táhnutím otáčejte, kolečkem přibližujte</span>
         </div>
 
@@ -96,7 +155,7 @@ export default function BuildView(p: Props) {
       </section>
 
       <aside className="panel">
-        <div className="panel-scroll">
+        <div className="panel-scroll" ref={panelRef}>
           <div className="panel-meta">
             <span>
               {stepTag(step)} · {p.stepIdx + 1} z {STEPS.length}
@@ -136,7 +195,15 @@ export default function BuildView(p: Props) {
                         {part.name}
                         {sp.note && <small>{sp.note}</small>}
                       </div>
-                      <b>{sp.qty !== undefined ? `${sp.qty}×` : ''}</b>
+                      {sp.qty !== undefined ? (
+                        <b>{sp.qty}×</b>
+                      ) : (
+                        <span className="need-total" title="Návod počet pro tento krok neuvádí">
+                          v balení
+                          <br />
+                          {part.qty} ks
+                        </span>
+                      )}
                     </li>
                   )
                 })}
@@ -169,13 +236,14 @@ export default function BuildView(p: Props) {
           )}
 
           <h2>Výkres z návodu</h2>
-          <button className="manual-thumb" onClick={() => setZoom(step.crop)}>
-            <img src={`${BASE}manual/${step.crop}.png`} alt={`Výkres z návodu, strana ${step.page}`} loading="lazy" />
-            <span>
-              Strana {step.page}
-              {step.details && step.details.length > 0 && ` · detail ${step.details.join(', ')}`} – kliknutím zvětšíte
-            </span>
-          </button>
+          <div className={sheets.length > 1 ? 'sheets' : 'sheets one'}>
+            {sheets.map((sh, i) => (
+              <button key={sh.src} className="manual-thumb" onClick={() => setZoom(i)}>
+                <img src={sh.src} alt={`Výkres z návodu – ${sh.label}`} loading="lazy" />
+                <span>{sh.label} – zvětšit</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="panel-foot">
@@ -196,22 +264,39 @@ export default function BuildView(p: Props) {
         </div>
       </aside>
 
-      {zoom && (
+      {zoom !== null && sheets[zoom] && (
         <div className="lightbox" onClick={() => setZoom(null)} role="dialog" aria-modal="true">
           <div className="lightbox-inner" onClick={(e) => e.stopPropagation()}>
             <div className="lightbox-bar">
-              <span>Návod, strana {step.page}</span>
+              <span>
+                {sheets[zoom].label}
+                {sheets[zoom].label.startsWith('Detail') && ` · návod str. ${step.page}`}
+              </span>
+              {sheets.length > 1 && (
+                <span className="lb-nav">
+                  <button onClick={() => setZoom((zoom - 1 + sheets.length) % sheets.length)} aria-label="Předchozí obrázek">
+                    ‹
+                  </button>
+                  {zoom + 1}/{sheets.length}
+                  <button onClick={() => setZoom((zoom + 1) % sheets.length)} aria-label="Další obrázek">
+                    ›
+                  </button>
+                </span>
+              )}
               <a href={`${BASE}manual/page-${String(step.page).padStart(2, '0')}.png`} target="_blank" rel="noreferrer">
                 Celá strana
               </a>
               <a href={`${BASE}manual/navod.pdf#page=${step.page}`} target="_blank" rel="noreferrer">
                 PDF
               </a>
-              <button onClick={() => setZoom(null)} aria-label="Zavřít">
+              <button onClick={() => setZoom(null)} aria-label="Zavřít (Esc)">
                 ✕
               </button>
             </div>
-            <img src={`${BASE}manual/${zoom}.png`} alt="Výkres z návodu" />
+            <div className={zoomed ? 'lb-img zoomed' : 'lb-img'} onClick={() => setZoomed(!zoomed)}>
+              <img src={sheets[zoom].src} alt={`Výkres z návodu – ${sheets[zoom].label}`} />
+            </div>
+            <div className="lb-hint">Kliknutím na obrázek přiblížíte · Esc zavře</div>
           </div>
         </div>
       )}

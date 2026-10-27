@@ -39,8 +39,9 @@ export const STEPS: Step[] = [
       'Pakety bloků rozeberte těsně před montáží (str. 7, doporučení 5).',
       'Pro snadnější montáž předvrtávejte otvory pro vruty průměru 5 a 6 mm vrtákem Ø5 mm (str. 7, doporučení 1).',
       'Během montáže noste ochranné rukavice (str. 2).',
+      'Střešní krytina není součástí dodávky (str. 1). Pokud ji chcete, pořiďte ji předem – lišty střechy návod doporučuje montovat až po ní (str. 14).',
     ],
-    note: 'Plošina a podlaha nejsou součástí domku – jsou namodelované podle vaší fotky. Půdorys plošiny je stejný jako půdorys domku 3270 × 2210 mm, takže domek na ní sedí líc na líc. Tloušťka podlahy je odhad (28 mm).',
+    note: 'Plošina a podlaha nejsou součástí domku – jsou namodelované podle fotky místa stavby. Jak domek připevnit k dřevěné plošině, návod neřeší (doporučuje jen zakotvení k zabetonovaným kotvám). Půdorys plošiny je stejný jako půdorys domku 3270 × 2210 mm, takže domek na ní sedí líc na líc. Tloušťka podlahy je odhad (28 mm).',
     parts: [],
     tools: ['vodovaha', 'metr', 'rukavice'],
     camera: { pos: [-3000, -4500, 2800], target: [1635, 1105, -100] },
@@ -60,6 +61,7 @@ export const STEPS: Step[] = [
       'Otvory jsou v osách sloupků – osy sloupků mají rozteč 1060 mm.',
       'Hranol č.5 (3360): u každého sloupku 2 otvory – 20 mm od horní a 20 mm od dolní hrany. Osy 2. a 3. sloupku jsou 1150 a 2210 mm od konce hranolu. Otvory jsou i v přesahujících koncích (spoj s bočním rámem, detail G).',
       'Hranol č.7 (3230): u každého sloupku 1 otvor uprostřed šířky hranolu. Osy 2. a 3. sloupku jsou 1085 a 2145 mm od konce hranolu.',
+      'Osy krajních sloupků (1. a 4.) vycházejí 90 mm od konců hranolu č.5 a 25 mm od konců hranolu č.7 (rozdíl kót 1150 − 1060 a 1085 − 1060).',
       'Vrtejte vrtákem Ø5 mm (č.43).',
     ],
     parts: [
@@ -83,7 +85,7 @@ export const STEPS: Step[] = [
     bullets: [
       'Rohové sloupky č.1 na kraje, střední č.2 dovnitř – rozteč os 1060 mm.',
       'Horní hranol č.5 je z vnější strany a přesahuje vnější líc rohových sloupků o 45 mm (detail A – přesazení horního hranolu).',
-      'Spodní hranol č.7 leží naplocho pod sloupky a je přesazený 20 mm dvakrát: konec hranolu je 20 mm před vnějším lícem rohového sloupku a hranol je 20 mm posunutý do strany vůči sloupku (detail B – přesazení spodního hranolu).',
+      'Spodní hranol č.7 leží naplocho pod sloupky a je přesazený 20 mm dvakrát: konec hranolu je 20 mm před vnějším lícem rohového sloupku a hranol je 20 mm posunutý do strany – dovnitř domku (detail B a bokorys na str. 8).',
       'Sešroubujte vruty č.32 předvrtanými otvory.',
     ],
     parts: [
@@ -131,7 +133,8 @@ export const STEPS: Step[] = [
     lead: 'Přišroubujte 2 rohové sloupky č.3 a 2 střední sloupky č.4, z boku rohových sloupků vložte ucpávky č.9.',
     bullets: [
       'Sloupky č.3 a č.4 jsou dlouhé 2650 mm, rozteč os 1060 mm.',
-      'Kóta 660 mm vede od horních konců sloupků č.3 / č.4 k horní hraně dolního hranolu č.5. Sloupky horní hranol č.5 přesahují.',
+      'Kóta 660 mm vede od horních konců sloupků č.3 / č.4 k horní hraně dolního hranolu č.5.',
+      'Mezi oba hranoly č.5 přijde ucpávka č.9 (515 mm), takže sloupky přečnívají nad horní hranol č.5 zhruba o 55 mm (660 − 515 − 90).',
       'Ucpávky č.9 přiložte z boku na rohové sloupky č.3 mezi horní a dolní hranol č.5 (detail C) a přišroubujte vruty č.32.',
       'Spodní hranol č.7 je přesazený 20 mm stejně jako u zadního rámu (detail D).',
       'Sešroubujte vruty č.32.',
@@ -169,7 +172,7 @@ export const STEPS: Step[] = [
     ],
     tools: ['vrtacka', 'vrtak', 'metr'],
     flags: ['vrtani'],
-    camera: { pos: [1635, -7600, 9200], target: [1635, 1105, 0] },
+    camera: { pos: [-5600, -3800, 2600], target: [-700, 1105, 500] },
   },
   {
     id: 's3b',
@@ -182,7 +185,7 @@ export const STEPS: Step[] = [
     lead: 'Do každého bočního rámu přišroubujte jeden sloupek č.2 (1990 mm).',
     bullets: [
       'Sloupek č.2 je uprostřed – 1105 mm od obou konců hranolu č.6.',
-      'Hranol č.6 nahoře, hranol č.8 dole naplocho, přesazený 20 mm (detail E).',
+      'Hranol č.6 nahoře, hranol č.8 dole naplocho, přesazený 20 mm dovnitř domku (detail E).',
       'Sešroubujte vruty č.32 (vrut č.32 prochází spodním hranolem č.8 do sloupku – detail E).',
     ],
     parts: [
@@ -191,7 +194,7 @@ export const STEPS: Step[] = [
     ],
     tools: ['sroubovak'],
     flags: ['sroubovani'],
-    camera: { pos: [1635, -7600, 9200], target: [1635, 1105, 0] },
+    camera: { pos: [-5600, -3800, 2600], target: [-700, 1105, 500] },
   },
   // ------------------------------------------------------------------ 4) podložky
   {
@@ -213,7 +216,7 @@ export const STEPS: Step[] = [
     ],
     tools: ['sroubovak'],
     flags: ['sroubovani'],
-    camera: { pos: [-1400, -5600, 700], target: [1100, -1450, -150] },
+    camera: { pos: [-1300, -3400, 450], target: [450, -1440, -250] },
   },
   // ------------------------------------------------------------------ 5) konstrukce
   {
@@ -231,6 +234,7 @@ export const STEPS: Step[] = [
       'Spojte vruty č.32 (detail G).',
       'Dole spojte zadní rohy spodních hranolů vruty č.31 – 2 v každém rohu (detail I).',
     ],
+    note: 'Ve 3D jsou rámy postavené tak, aby vnější líce sloupků lícovaly s hranami plošiny. Jak rámy k plošině připevnit, návod neřeší.',
     parts: [
       { no: 32, note: 'detail G' },
       { no: 31, qty: 4, note: '2 v každém zadním rohu (detail I)' },
@@ -318,7 +322,7 @@ export const STEPS: Step[] = [
     lead: 'Do levého a pravého pole čelní stěny zasuňte moduly č.23. Do dveřního otvoru zasuňte lišty č.12 z boku a lištu č.13 shora.',
     quote: 'zasunout lišty č.12 z boku a č.13 shora, zajistit vruty č.34',
     bullets: [
-      'Levé a pravé pole: 2 × 6 modulů č.23. Spodní modul zajistěte 2+2 vruty č.34 (horním panelem těchto polí je až okenní modul č.24 – viz další krok).',
+      'Levé a pravé pole: 2 × 6 modulů č.23. Spodní modul zajistěte 2+2 vruty č.34. Horním panelem těchto polí je až okenní modul č.24 (krok 6d) – zajištění 1+1 proto patří k němu (detail K).',
       'Lišty č.12 (1870 mm) zasuňte z boku do drážek sloupků č.4 u dveřního otvoru.',
       'Lištu č.13 zasuňte shora nad dveřní otvor – otvor má výšku 1870 mm.',
       'Lišty zajistěte vruty č.34 (detail K).',
@@ -343,6 +347,7 @@ export const STEPS: Step[] = [
     title: 'Zasuňte okenní moduly',
     lead: 'Do horního pásu čelní stěny (mezi oba hranoly č.5) zasuňte 3 okenní moduly č.24.',
     bullets: [
+      'Okenní moduly zasuňte do stejných drážek sloupků č.3 a č.4 nad moduly č.23 – zvenku jsou mezi oběma hranoly č.5.',
       'Okenní modul je horním panelem pole – zajistěte ho 1+1 vrutem č.34 (detail K).',
       'U lišty č.13 nad dveřmi jsou další vruty č.34 (detail K).',
     ],
@@ -362,7 +367,7 @@ export const STEPS: Step[] = [
     page: 12,
     crop: 's7',
     title: 'Osaďte štíty',
-    lead: 'Na boční stěny nasaďte levý štít č.25 a pravý štít č.26.',
+    lead: 'Na boční stěny nasaďte levý štít č.25 a pravý štít č.26 – levý a pravý při pohledu zepředu, od dveří (str. 7).',
     quote: '7) Montáž krovu',
     bullets: [
       'Štít leží na hranolu č.6 bočního rámu, jeho horní hranol vpředu i vzadu na hranolech č.5.',
@@ -392,8 +397,9 @@ export const STEPS: Step[] = [
       'Místa krokví: rozteč 828,75 mm (4 mezery mezi 5 krokvemi, krajní jsou štíty).',
       'U každé krokve přišroubujte zevnitř k palubkám okenního modulu 2 svlaky č.11 – po jednom z každé strany výřezu, každý 4 vruty č.39 (detail N).',
       'Šířka výřezu 45 +2 mm (kóta v detailu N).',
-      'Palubky prořízněte do potřebné hloubky s vůlí cca 5 mm kolem krovu.',
+      'Palubky prořízněte do potřebné hloubky s vůlí cca 5 mm kolem krovu. Konkrétní hloubku řezu návod neuvádí; kóta 45 +2 a text „vůle cca 5 mm“ se v návodu liší – uvádí obojí.',
     ],
+    note: 'Řez je nevratný. Místo a hloubku výřezu si nejdřív vyznačte – např. přiložením krokve na pozednice – a teprve potom řežte.',
     parts: [
       { no: 11, qty: 6, note: '2 u každé krokve' },
       { no: 39, qty: 24, note: '4 na každý svlak (detail N)' },
@@ -432,9 +438,10 @@ export const STEPS: Step[] = [
     lead: 'Na krokve přišroubujte 25 řad palubek – v každé řadě jedna dlouhá č.21 (2660) a jedna krátká č.22 (1000).',
     quote: '8) Montáž palubek střechy a dveří',
     bullets: [
-      'Krátkou a dlouhou palubku v řadách střídejte, aby spoje nebyly v jedné linii (spoje vycházejí střídavě na 2. a 4. krokev).',
+      'Krátkou a dlouhou palubku v řadách střídejte, aby spoje nebyly v jedné linii (spoje vycházejí střídavě na 2. a 4. krokev, počítáno od kraje včetně štítů).',
       'Palubky přišroubujte vruty č.37.',
-      'Palubky nesrážejte natvrdo k sobě – mohou bobtnat a sesychat (str. 7, doporučení 2).',
+      'Palubky nesrážejte natvrdo k sobě – mohou bobtnat a sesychat (str. 7, doporučení 2). Velikost mezery ani místo, kde začít, návod neuvádí.',
+      'Střešní krytina (není součástí dodávky) se pokládá na tyto palubky – viz krok 9.',
     ],
     parts: [
       { no: 21, qty: 25 },
@@ -483,7 +490,7 @@ export const STEPS: Step[] = [
     quote:
       '9) Montáž lišt a štítovek. (Případně zkrátit dle potřeby) (doporučujeme po montáži střešní krytiny, která není součástí dodávky)',
     bullets: [
-      'Štítovky č.17 po stranách a čelní štítovky č.18 přišroubujte vruty č.35.',
+      'Štítovky č.17 po stranách a čelní štítovky č.18 přišroubujte vruty č.35. Oba kusy č.18 (a stejně tak č.16) přijdou za sebou po celé délce čela (2 × 1850 mm ≈ 3700 mm půdorysu střechy).',
       'Lišty střechy č.15 (po stranách) a č.16 (vpředu) přišroubujte navrch vruty č.38 (detail Q).',
       'Destičku s logem č.28 přišroubujte na čelní štítovku vruty č.39.',
       'Pokud budete pokládat krytinu (není součástí dodávky), namontujte lišty až po ní.',
@@ -533,7 +540,7 @@ export const STEPS: Step[] = [
     manual: '✓',
     page: 7,
     crop: 'overview',
-    title: 'Hotovo',
+    title: 'Domek je postavený',
     lead: 'Domek je smontovaný. Teď ho ochraňte nátěrem.',
     quote:
       'Po dokončení montáže domku doporučujeme provést nátěr pro konečnou ochranu proti povětrnostním vlivům, který bude chránit dřevo před vlhkostí a UV zářením.',

@@ -22,15 +22,16 @@ export type Part = {
   qty: number
   kind: PartKind
   weight?: string
+  note?: string
 }
 
 export const PARTS: Part[] = [
-  { no: 1, name: 'Hranol 90×90×1990 – noha1', code: 'Hranol_90x90-1990_noha1', qty: 2, kind: 'hranol', weight: '15,7 kg' },
-  { no: 2, name: 'Hranol 90×90×1990 – noha2', code: 'Hranol_90x90-1990_noha2', qty: 4, kind: 'hranol', weight: '31,3 kg' },
-  { no: 3, name: 'Hranol 90×90×2650 – noha1', code: 'Hranol_90x90-2650_noha1', qty: 2, kind: 'hranol', weight: '20,9 kg' },
-  { no: 4, name: 'Hranol 90×90×2650 – noha2', code: 'Hranol_90x90-2650_noha2', qty: 2, kind: 'hranol', weight: '20,9 kg' },
+  { no: 1, name: 'Hranol 90×90×1990 – noha1', code: 'Hranol_90x90-1990_noha1', qty: 2, kind: 'hranol', weight: '15,7 kg', note: 'rohový sloupek zadní stěny' },
+  { no: 2, name: 'Hranol 90×90×1990 – noha2', code: 'Hranol_90x90-1990_noha2', qty: 4, kind: 'hranol', weight: '31,3 kg', note: 'střední sloupek zadní stěny a bočních rámů' },
+  { no: 3, name: 'Hranol 90×90×2650 – noha1', code: 'Hranol_90x90-2650_noha1', qty: 2, kind: 'hranol', weight: '20,9 kg', note: 'rohový sloupek čelní stěny' },
+  { no: 4, name: 'Hranol 90×90×2650 – noha2', code: 'Hranol_90x90-2650_noha2', qty: 2, kind: 'hranol', weight: '20,9 kg', note: 'střední sloupek čelní stěny (u dveří)' },
   { no: 5, name: 'Hranol 45×90×3360 – pozednice hlavní', code: 'Hranol_45x90-3360_pozednice_Hlavní', qty: 3, kind: 'hranol', weight: '22,8 kg' },
-  { no: 6, name: 'Hranol 45×90×2210 – pozednice čelní', code: 'Hranol_45x90-2210_pozednice_čelní', qty: 2, kind: 'hranol', weight: '10,0 kg' },
+  { no: 6, name: 'Hranol 45×90×2210 – pozednice čelní', code: 'Hranol_45x90-2210_pozednice_čelní', qty: 2, kind: 'hranol', weight: '10,0 kg', note: 'název dle výrobce – použije se v bočních rámech' },
   { no: 7, name: 'Hranol 45×90×3230 – spodní', code: 'Hranol_45x90-3230_spodní', qty: 2, kind: 'hranol', weight: '14,6 kg' },
   { no: 8, name: 'Hranol 45×90×1990 – spodní', code: 'Hranol_45x90-1990_spodní', qty: 2, kind: 'hranol', weight: '9,0 kg' },
   { no: 9, name: 'Hranol 45×70×515 – ucpávka', code: 'Hranol_45x70-515_ucpavka', qty: 2, kind: 'hranol', weight: '1,8 kg' },

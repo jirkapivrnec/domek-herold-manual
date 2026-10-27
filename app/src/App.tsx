@@ -45,6 +45,11 @@ export default function App() {
     setPaused(false)
   }, [stepIdx])
 
+  useEffect(() => {
+    window.scrollTo({ top: 0 })
+    document.querySelector('.page')?.scrollTo({ top: 0 })
+  }, [view])
+
   const setStep = useCallback(
     (i: number) => navigate({ view: 'build', step: Math.max(0, Math.min(STEPS.length - 1, i)) }),
     [navigate],
@@ -100,6 +105,7 @@ export default function App() {
           {tab('build', 'Hotovo', view === 'build' && stepIdx === last, () => setStep(last))}
         </nav>
         <div className="top-right">
+          {view === 'build' && (
           <div className="seg" role="group" aria-label="Vzhled modelu">
             <button className={mode === 'navod' ? 'on' : ''} onClick={() => setMode('navod')}>
               Návod
@@ -108,6 +114,7 @@ export default function App() {
               Dřevo
             </button>
           </div>
+          )}
           <a className="pdf-link" href={`${BASE}manual/navod.pdf`} target="_blank" rel="noreferrer" title="Originální návod (PDF)">
             PDF
           </a>
@@ -116,7 +123,7 @@ export default function App() {
 
       <main>
         {view === 'tools' && <ToolsPage onStart={() => setView('parts')} />}
-        {view === 'parts' && <PartsPage onStart={() => setView('build')} />}
+        {view === 'parts' && <PartsPage onStart={() => setView('build')} onStep={setStep} />}
         {view === 'build' && (
           <BuildView
             stepIdx={stepIdx}
